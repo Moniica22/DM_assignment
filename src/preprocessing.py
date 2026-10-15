@@ -40,11 +40,20 @@ def fill_missing_review_text(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+
 def clean_problematic_characters(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
+
 def normalize_whitespace(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    # removes any '   ', '\t', '\n' etc
+    for column in ["Upside_Review", "Downside_Review"]:
+        df[column] = df[column].str.replace(r"\s+", " ", regex=True).str.strip()
+
     return df
+
 
 def concatenate_reviews(df: pd.DataFrame) -> pd.DataFrame:
     return df
