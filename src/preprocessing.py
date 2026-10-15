@@ -1,6 +1,23 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from constants import *
+
+
+
+def split_data(df: pd.DataFrame, stratify_columns = ["source"]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    train_df, test_df = train_test_split(
+        df,
+        test_size=0.25,
+        random_state=RANDOM_STATE,
+        stratify=df[stratify_columns],
+    )
+
+    train_df.to_csv(TRAIN_DATA_FILE, index=False)
+    test_df.to_csv(TEST_DATA_FILE, index=False)
+    print(f"Train and Test data saved at:\n\t-{TRAIN_DATA_FILE}\n\t-{TEST_DATA_FILE}")
+
+    return train_df, test_df
 
 # Read Data end extract english reviews
 def read_all_data() -> pd.DataFrame:
@@ -104,9 +121,11 @@ preprocessing_steps = [
 
 def main():
     # 1 - Read Data
+    print(f"\n - Loading the Data")
     all_reviews = read_all_data()
 
     # 2 - Extract English Reviews (and save)
+    print(f"\n - Extracting English Reviews")
     df = extract_english_reviews(all_reviews)
 
     # 3 - Apply preprocessing steps
@@ -116,7 +135,8 @@ def main():
             df = step(df)
 
     # 4 - Stratified Split
-
+    print(f"\n - Splitting the Data")
+    df_train, df_test = split_data(df, stratify_columns=["source", "Sentiment"])    # This we need to discuss
 
     return
 
