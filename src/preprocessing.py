@@ -20,9 +20,24 @@ def extract_english_reviews(all_reviews) -> pd.DataFrame:
 # Preprocessing Functions
 
 def remove_invalid_source_labels(df: pd.DataFrame) -> pd.DataFrame:
-    return df
+    valid = df["source"].isin([0, 1])
+
+    print(f"Removed {len(df) - (valid).sum()} rows with missing/invalid source labels.")
+
+    return df[valid].copy()
 
 def fill_missing_review_text(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    columns = ["Upside_Review", "Downside_Review"]
+
+    missing_per_col = df[columns].isna().sum(axis=0)
+    missing_count = missing_per_col[0] + missing_per_col[1]
+    df[columns] = df[columns].fillna("")
+
+    print(f"Missing review texts:\n{missing_per_col}")
+
+    print(f"\nReplaced {missing_count} missing text sections with empty strings.")
+
     return df
 
 def clean_problematic_characters(df: pd.DataFrame) -> pd.DataFrame:
@@ -62,8 +77,9 @@ def main():
     df = extract_english_reviews(all_reviews)
 
     # 3 - Apply preprocessing steps
-    for (_,step,used) in preprocessing_steps:
-        if used:
+    for (step_name,step,enabled) in preprocessing_steps:
+        if enabled:
+            print(f"\n - Running {step_name}")
             df = step(df)
 
     # 4 - Stratified Split
