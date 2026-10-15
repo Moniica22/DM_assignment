@@ -64,17 +64,33 @@ def concatenate_reviews(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def remove_empty_reviews(df: pd.DataFrame) -> pd.DataFrame:
+    orig_size = df.shape[0]
+
     # Empty reviews are those that after concatenation are only an empty space
     df = df[df["Review_Text"].str.strip() != ""].copy()
 
+    print(f"Removed {orig_size-df.shape[0]} empty reviews")
+
     return df
 
 
-def check_duplicate_reviews(df: pd.DataFrame) -> pd.DataFrame:
+def handle_duplicate_reviews(df: pd.DataFrame) -> pd.DataFrame:
+    orig_size_before_identicals = df.shape[0]
+    # Remove Duplicates
+    df = df.drop_duplicates().copy()
+
+    # Remove rows with identical x-y
+    orig_size_before_same_xy = df.shape[0]
+    # Keep a standard row each time for reproducibility
+    df = df.sample(frac=1, random_state = RANDOM_STATE).reset_index(drop=True)
+    df = df.drop_duplicates(['Review_Text', 'source']).copy()
+
+    print(f"Removed {orig_size_before_identicals - orig_size_before_same_xy} fully identical rows.")
+    print(f"Removed {orig_size_before_same_xy - df.shape[0]} rows with same text and source.")
+
     return df
 
-def check_sentiment_labels(df: pd.DataFrame) -> pd.DataFrame:
-    return df
+
 
 preprocessing_steps = [
     ("remove_invalid_source_labels", remove_invalid_source_labels, True),
@@ -83,8 +99,7 @@ preprocessing_steps = [
     ("normalize_whitespace", normalize_whitespace, True),
     ("concatenate_reviews", concatenate_reviews, True),
     ("remove_empty_reviews", remove_empty_reviews, True),
-    ("check_duplicate_reviews", check_duplicate_reviews, True),
-    ("check_sentiment_labels", check_sentiment_labels, False),
+    ("check_duplicate_reviews", handle_duplicate_reviews, True),
 ]
 
 def main():

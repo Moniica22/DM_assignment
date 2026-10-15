@@ -32,3 +32,5 @@ TEST_DATA_FILE = DATA_DIR / "test_data.csv"
 
 # Results
 RESULTS_DIR = PROJECT_ROOT / "results"
+
+RANDOM_STATE = 42
