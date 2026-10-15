@@ -34,3 +34,6 @@ TEST_DATA_FILE = DATA_DIR / "test_data.csv"
 RESULTS_DIR = PROJECT_ROOT / "results"
 
 RANDOM_STATE = 42
+Y_COL = "source"
+X_COL = "Review_Text"
+N_SPLITS = 10

@@ -75,7 +75,7 @@ def normalize_whitespace(df: pd.DataFrame) -> pd.DataFrame:
 def concatenate_reviews(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
-    df["Review_Text"] = (df["Upside_Review"] + " " + df["Downside_Review"]).str.strip()
+    df[X_COL] = (df["Upside_Review"] + " " + df["Downside_Review"]).str.strip()
 
     return df
 
@@ -84,7 +84,7 @@ def remove_empty_reviews(df: pd.DataFrame) -> pd.DataFrame:
     orig_size = df.shape[0]
 
     # Empty reviews are those that after concatenation are only an empty space
-    df = df[df["Review_Text"].str.strip() != ""].copy()
+    df = df[df[X_COL].str.strip() != ""].copy()
 
     print(f"Removed {orig_size-df.shape[0]} empty reviews")
 
