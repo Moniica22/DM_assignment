@@ -15,10 +15,10 @@ model_path = NAIVE_BAYES_DIR
 def save_training_results(search: GridSearchCV, model_dir: Path, model_name: str) -> Path:
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    model_path = f"{model_dir}/{model_name}.joblib"
+    model_path = model_dir / f"{model_name}.joblib"
     joblib.dump(search.best_estimator_, model_path)
 
-    with open(f"{model_dir}/{model_name}_best_params.json", "w") as file:
+    with open(model_dir / f"{model_name}_best_params.json", "w") as file:
         json.dump(
             {
                 "best_params": search.best_params_,
@@ -30,7 +30,7 @@ def save_training_results(search: GridSearchCV, model_dir: Path, model_name: str
         )
 
     pd.DataFrame(search.cv_results_).to_csv(
-        f"{model_dir}/{model_name}_cv_results.csv",
+        model_dir / f"{model_name}_cv_results.csv",
         index=False
     )
 
