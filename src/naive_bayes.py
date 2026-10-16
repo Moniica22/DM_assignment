@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -49,7 +50,8 @@ def load_data() -> tuple[pd.Series, pd.Series]:
 def build_model() -> Pipeline:
     pipeline = Pipeline([
         ("bow", CountVectorizer(min_df=2)),
-        ("classifier", MultinomialNB())
+        ("selection", SelectKBest(score_func=chi2)),
+        ("classifier", MultinomialNB()),
     ])
 
     return pipeline
@@ -71,7 +73,8 @@ def create_param_search_grid(pipeline:Pipeline, cv:StratifiedKFold, param_grid:d
         param_grid=param_grid,
         cv=cv,
         scoring="accuracy",
-        refit=True      # refit = True so it then trains the model after finding optimal grid
+        refit=True,      # refit = True so it then trains the model after finding optimal grid
+        verbose=2,
     )
 
     return search_grid
@@ -97,7 +100,9 @@ def main():
 
     # 4 - Create Search Object
     param_grid = {
-        "classifier__alpha": [0.1, 0.5, 1.0]
+        "bow__min_df": [1, 2, 5],
+        "selection__k": [100, 300, 500, 1000, "all"],
+        "classifier__alpha": [0.01, 0.1, 0.5, 1.0, 2.0]
     }
     search = create_param_search_grid(pipeline, cv, param_grid)
 
