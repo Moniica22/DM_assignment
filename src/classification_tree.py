@@ -4,7 +4,6 @@ from pathlib import Path
 import joblib
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
