@@ -72,8 +72,8 @@ def create_param_search_grid(pipeline:Pipeline, cv:StratifiedKFold, param_grid:d
         estimator=pipeline,
         param_grid=param_grid,
         cv=cv,
-        scoring="accuracy",
-        refit=True,      # refit = True so it then trains the model after finding optimal grid
+        scoring=["accuracy", "precision", "recall", "f1"],
+        refit="accuracy",
         verbose=2,
     )
 
@@ -100,10 +100,10 @@ def main():
 
     # 4 - Create Search Object
     param_grid = {
-        "bow__min_df": [1, 2, 5, 0.01, 0.05],
-        "bow__ngram_range": [(1, 1), (1, 2)],
-        "selection__k": [1000, 2000, "all"],
-        "classifier__alpha": [0.1, 0.5, 1.0]
+        "bow__min_df": [2, 5],
+        "bow__ngram_range": [(1, 2), (1, 3), (1, 4), (1,5)],
+        "selection__k": [2000, "all"],
+        "classifier__alpha": [0.1, 0.5, 1.0],
     }
     search = create_param_search_grid(pipeline, cv, param_grid)
 
