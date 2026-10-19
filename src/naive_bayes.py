@@ -100,9 +100,10 @@ def main():
 
     # 4 - Create Search Object
     param_grid = {
-        "bow__min_df": [1, 2, 5],
-        "selection__k": [100, 300, 500, 1000, "all"],
-        "classifier__alpha": [0.01, 0.1, 0.5, 1.0, 2.0]
+        "bow__min_df": [1, 2, 5, 0.01, 0.05],
+        "bow__ngram_range": [(1, 1), (1, 2)],
+        "selection__k": [1000, 2000, "all"],
+        "classifier__alpha": [0.1, 0.5, 1.0]
     }
     search = create_param_search_grid(pipeline, cv, param_grid)
 
