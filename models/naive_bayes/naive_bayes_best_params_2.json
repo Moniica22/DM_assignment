@@ -1,0 +1,41 @@
+{
+  "best_params": {
+    "bow__min_df": 5,
+    "bow__ngram_range": [
+      1,
+      2
+    ],
+    "classifier__alpha": 0.5,
+    "selection__k": "all"
+  },
+  "best_cv_score": 0.9213333333333333,
+  "param_grid": {
+    "bow__min_df": [
+      1,
+      2,
+      5,
+      0.01,
+      0.05
+    ],
+    "bow__ngram_range": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "selection__k": [
+      1000,
+      2000,
+      "all"
+    ],
+    "classifier__alpha": [
+      0.1,
+      0.5,
+      1.0
+    ]
+  }
+}
