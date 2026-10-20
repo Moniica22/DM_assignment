@@ -1,0 +1,48 @@
+{
+  "selection_method": "out-of-bag",
+  "selection_metric": "accuracy",
+  "best_params": {
+    "bow__min_df": 5,
+    "bow__ngram_range": [
+      1,
+      1
+    ],
+    "classifier__max_depth": null,
+    "classifier__max_features": "sqrt",
+    "classifier__min_samples_leaf": 1
+  },
+  "best_oob_score": 0.912,
+  "param_grid": {
+    "bow__min_df": [
+      1,
+      2,
+      5
+    ],
+    "bow__ngram_range": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "classifier__max_depth": [
+      30,
+      null
+    ],
+    "classifier__min_samples_leaf": [
+      1
+    ],
+    "classifier__max_features": [
+      "sqrt"
+    ]
+  },
+  "fixed_forest_params": {
+    "n_estimators": 300,
+    "bootstrap": true,
+    "oob_score": true,
+    "random_state": 42
+  }
+}

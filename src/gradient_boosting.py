@@ -16,10 +16,10 @@ model_path = GRADIENT_BOOSTING_DIR
 def save_training_results(search: GridSearchCV, model_dir: Path, model_name: str) -> Path:
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    model_path = model_dir / f"{model_name}.joblib"
+    model_path = model_dir / f"{model_name}_2.joblib"
     joblib.dump(search.best_estimator_, model_path)
 
-    with open(model_dir / f"{model_name}_best_params.json", "w") as file:
+    with open(model_dir / f"{model_name}_best_params_2.json", "w") as file:
         json.dump(
             {
                 "best_params": search.best_params_,
@@ -31,7 +31,7 @@ def save_training_results(search: GridSearchCV, model_dir: Path, model_name: str
         )
 
     pd.DataFrame(search.cv_results_).to_csv(
-        model_dir / f"{model_name}_cv_results.csv",
+        model_dir / f"{model_name}_cv_results_2.csv",
         index=False
     )
 
@@ -98,10 +98,10 @@ def main():
 
     # 4 - Create Search Object
     param_grid = { # 81 candidates
-        "bow__min_df": [1, 2, 5],
-        "classifier__n_estimators": [100, 300, 500],
-        "classifier__learning_rate": [0.05, 0.1, 0.3],
-        "classifier__max_depth": [1, 3, 5] # lower than in random forest because it accumulates corrections
+        "bow__min_df": [5],
+        "classifier__n_estimators": [500, 800, 1200],
+        "classifier__learning_rate": [0.3],
+        "classifier__max_depth": [1] # lower than in random forest because it accumulates corrections
     }
     search = create_param_search_grid(pipeline, cv, param_grid)
 

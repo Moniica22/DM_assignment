@@ -16,11 +16,11 @@ model_path = RANDOM_FOREST_DIR
 def save_training_results(pipeline: Pipeline, best_params:dict, results: pd.DataFrame, param_grid: dict,model_dir: Path, model_name: str) -> Path:
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    model_path = model_dir / f"{model_name}.joblib"
+    model_path = model_dir / f"{model_name}_2.joblib"
     joblib.dump(pipeline, model_path)
 
     forest = pipeline.named_steps["classifier"] 
-    with open(model_dir / f"{model_name}_best_params.json", "w") as file:
+    with open(model_dir / f"{model_name}_best_params_2.json", "w") as file:
         json.dump(
             {
                 "selection_method": "out-of-bag",
@@ -40,7 +40,7 @@ def save_training_results(pipeline: Pipeline, best_params:dict, results: pd.Data
         )
 
     results.to_csv(
-        model_dir / f"{model_name}_oob_results.csv",
+        model_dir / f"{model_name}_oob_results_2.csv",
         index=False
     )
 
@@ -109,9 +109,10 @@ def main():
     # 2 - Create hyperparameter search grid
     param_grid = { # 36 candidate forests
         "bow__min_df": [1, 2, 5],
-        "classifier__max_depth": [10, 30, None],
-        "classifier__min_samples_leaf": [1, 3],
-        "classifier__max_features": ["sqrt", 0.1],
+        "bow__ngram_range": [(1, 1), (1, 2)],
+        "classifier__max_depth": [30, None],
+        "classifier__min_samples_leaf": [1],
+        "classifier__max_features": ["sqrt"],
     }
     # 3 - Create and run each candidate; select based on OOB score
     best_pipeline, best_params, results = run_oob_search_and_train_model(X_train, Y_train, param_grid)
