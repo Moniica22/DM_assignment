@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import os
+from typing import List
 
 from constants import *
 
@@ -45,6 +47,119 @@ def metrics(model, y_true, y_pred):
 
 def save_table(df, path, index):
     df.to_csv(path, index=index)
+
+def save_top_features(df_top_features:pd.DataFrame, model_name:str, output_dir) -> None:
+
+    path = output_dir / f"top_features_{model_name}.csv"
+    df_top_features.to_csv(path, index=False)
+    print(f"results saved to {path}")
+
+    return
+
+def get_NB_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_log_prob_[1] - classifier.feature_log_prob_[0]
+    abs_importance_scores = np.abs(importance_scores)
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+        "abs_score": abs_importance_scores,
+        "favours_class": ""
+    })
+    importance_df.loc[importance_df['score'] > 0, 'favours_class'] = '1'
+    importance_df.loc[importance_df['score'] < 0, 'favours_class'] = '0'
+    importance_df.loc[importance_df['score'] == 0, 'favours_class'] = 'neither'
+
+    top_features = importance_df.sort_values(by="abs_score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+
+def get_LR_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.coef_[0]
+    abs_importance_scores = np.abs(importance_scores)
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+        "abs_score": abs_importance_scores,
+        "favours_class": ""
+    })
+    importance_df.loc[importance_df['score'] > 0, 'favours_class'] = '1'
+    importance_df.loc[importance_df['score'] < 0, 'favours_class'] = '0'
+    importance_df.loc[importance_df['score'] == 0, 'favours_class'] = 'neither'
+
+    top_features = importance_df.sort_values(by="abs_score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+
+def get_CT_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_importances_
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+    })
+
+    top_features = importance_df.sort_values(by="score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+def get_RF_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_importances_
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+    })
+
+    top_features = importance_df.sort_values(by="score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+def get_GB_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_importances_
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+    })
+
+    top_features = importance_df.sort_values(by="score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+
+
+def run_feature_importance(model_names: List[str], output_dir, num_top_features=5) -> None:
+    for model_name in model_names:
+        pipeline = load_model(model_name)
+
+        feature_names = pipeline[:-1].get_feature_names_out()
+        classifier = pipeline.named_steps["classifier"]
+
+        if model_name == "naive_bayes":
+            top_features = get_NB_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "logistic_regression":
+            top_features = get_LR_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "classification_tree":
+            top_features = get_CT_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "random_forest":
+            top_features = get_RF_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "gradient_boosting":
+            top_features = get_GB_feature_importance(classifier, feature_names, num_top_features)
+
+        else:
+            raise ValueError(f"Unsupported model type: {model_name}")
+
+        save_top_features(top_features, model_name, output_dir)
+
+    return
 
 
 def run_sentiment(models, output_dir):
@@ -107,10 +222,17 @@ def main():
     if args.mode == "sentiment" and args.models != ["random_forest"]:
         parser.error("Sentiment analysis requires --models random_forest.")
 
-    output_dir = RESULTS_DIR / "analysis" / args.mode / "_vs_".join(args.models)
+    if args.mode in ["comparison", "sentiment"]:
+        output_dir = RESULTS_DIR / "analysis" / args.mode / "_vs_".join(args.models)
+
+    else:
+        output_dir = RESULTS_DIR / "analysis" / args.mode
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    functions = {"sentiment": run_sentiment} # add the other 2 funs 
+    functions = {
+        "sentiment": run_sentiment,
+        "feature_importance": run_feature_importance,
+    }
     functions[args.mode](args.models, output_dir)
 
     print(f"\nSaved to {output_dir}")
