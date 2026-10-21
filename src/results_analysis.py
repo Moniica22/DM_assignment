@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import os
+from typing import List
+from statsmodels.stats.contingency_tables import mcnemar
 
 from constants import *
 
@@ -45,6 +48,119 @@ def metrics(model, y_true, y_pred):
 
 def save_table(df, path, index):
     df.to_csv(path, index=index)
+
+def save_top_features(df_top_features:pd.DataFrame, model_name:str, output_dir) -> None:
+
+    path = output_dir / f"top_features_{model_name}.csv"
+    df_top_features.to_csv(path, index=False)
+    print(f"results saved to {path}")
+
+    return
+
+def get_NB_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_log_prob_[1] - classifier.feature_log_prob_[0]
+    abs_importance_scores = np.abs(importance_scores)
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+        "abs_score": abs_importance_scores,
+        "favours_class": ""
+    })
+    importance_df.loc[importance_df['score'] > 0, 'favours_class'] = '1'
+    importance_df.loc[importance_df['score'] < 0, 'favours_class'] = '0'
+    importance_df.loc[importance_df['score'] == 0, 'favours_class'] = 'neither'
+
+    top_features = importance_df.sort_values(by="abs_score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+
+def get_LR_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.coef_[0]
+    abs_importance_scores = np.abs(importance_scores)
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+        "abs_score": abs_importance_scores,
+        "favours_class": ""
+    })
+    importance_df.loc[importance_df['score'] > 0, 'favours_class'] = '1'
+    importance_df.loc[importance_df['score'] < 0, 'favours_class'] = '0'
+    importance_df.loc[importance_df['score'] == 0, 'favours_class'] = 'neither'
+
+    top_features = importance_df.sort_values(by="abs_score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+
+def get_CT_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_importances_
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+    })
+
+    top_features = importance_df.sort_values(by="score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+def get_RF_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_importances_
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+    })
+
+    top_features = importance_df.sort_values(by="score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+def get_GB_feature_importance(classifier, feature_names, num_top_features):
+    importance_scores = classifier.feature_importances_
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "score": importance_scores,
+    })
+
+    top_features = importance_df.sort_values(by="score", ascending=False).iloc[:num_top_features].copy()
+    print(top_features)
+
+    return top_features
+
+
+
+def run_feature_importance(model_names: List[str], output_dir, num_top_features=5) -> None:
+    for model_name in model_names:
+        pipeline = load_model(model_name)
+
+        feature_names = pipeline[:-1].get_feature_names_out()
+        classifier = pipeline.named_steps["classifier"]
+
+        if model_name == "naive_bayes":
+            top_features = get_NB_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "logistic_regression":
+            top_features = get_LR_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "classification_tree":
+            top_features = get_CT_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "random_forest":
+            top_features = get_RF_feature_importance(classifier, feature_names, num_top_features)
+
+        elif model_name == "gradient_boosting":
+            top_features = get_GB_feature_importance(classifier, feature_names, num_top_features)
+
+        else:
+            raise ValueError(f"Unsupported model type: {model_name}")
+
+        save_top_features(top_features, model_name, output_dir)
+
+    return
 
 
 def run_sentiment(models, output_dir):
@@ -97,6 +213,81 @@ def run_sentiment(models, output_dir):
 
 
 
+def run_comparison(models, output_dir):
+    if len(models) != 2:
+        raise ValueError("McNemar's test requires exactly two models.")
+
+    model_a, model_b = models
+
+    df = load_test()
+    y_true = df[Y_COL].to_numpy()
+
+    y_pred_a = load_model(model_a).predict(df[X_COL].fillna(""))
+    y_pred_b = load_model(model_b).predict(df[X_COL].fillna(""))
+
+    a_correct = y_pred_a == y_true
+    b_correct = y_pred_b == y_true
+
+    contingency_table = np.array([
+        [
+            np.sum(a_correct & b_correct),
+            np.sum(a_correct & ~b_correct),
+        ],
+        [
+            np.sum(~a_correct & b_correct),
+            np.sum(~a_correct & ~b_correct),
+        ],
+    ])
+
+    result = mcnemar(
+        contingency_table,
+        exact=True,
+    )
+
+    alpha = 0.05
+
+    contingency_df = pd.DataFrame(
+        contingency_table,
+        index=[
+            f"{model_a}_correct",
+            f"{model_a}_incorrect",
+        ],
+        columns=[
+            f"{model_b}_correct",
+            f"{model_b}_incorrect",
+        ],
+    )
+
+    test_results = pd.DataFrame([{
+        "test": "McNemar exact test",
+        "model_a": model_a,
+        "model_b": model_b,
+        "n_reviews": len(y_true),
+        "model_a_accuracy": float(np.mean(a_correct)),
+        "model_b_accuracy": float(np.mean(b_correct)),
+        "both_correct": int(contingency_table[0, 0]),
+        "model_a_correct_model_b_incorrect": int(contingency_table[0, 1]),
+        "model_a_incorrect_model_b_correct": int(contingency_table[1, 0]),
+        "both_incorrect": int(contingency_table[1, 1]),
+        "statistic": float(result.statistic),
+        "p_value": float(result.pvalue),
+        "alpha": alpha,
+        "significant": bool(result.pvalue < alpha),
+    }])
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    contingency_df.to_csv(output_dir / "mcnemar_contingency_table.csv")
+    test_results.to_csv(output_dir / "mcnemar_test.csv", index=False)
+
+    print("\nMcNemar contingency table:")
+    print(contingency_df.to_string())
+
+    print("\nMcNemar test:")
+    print(test_results.to_string(index=False))
+
+
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__) 
@@ -104,13 +295,24 @@ def main():
     parser.add_argument("--models", required=True, nargs="+", choices=list(MODEL_FILES))
     args = parser.parse_args()
 
+    if args.mode == "comparison" and len(args.models) != 2:
+        parser.error("McNemar comparison requires exactly two models.")
+
     if args.mode == "sentiment" and args.models != ["random_forest"]:
         parser.error("Sentiment analysis requires --models random_forest.")
 
-    output_dir = RESULTS_DIR / "analysis" / args.mode / "_vs_".join(args.models)
+    if args.mode in ["comparison", "sentiment"]:
+        output_dir = RESULTS_DIR / "analysis" / args.mode / "_vs_".join(args.models)
+
+    else:
+        output_dir = RESULTS_DIR / "analysis" / args.mode
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    functions = {"sentiment": run_sentiment} # add the other 2 funs 
+    functions = {
+        "comparison": run_comparison,
+        "sentiment": run_sentiment,
+        "feature_importance": run_feature_importance,
+    }
     functions[args.mode](args.models, output_dir)
 
     print(f"\nSaved to {output_dir}")
