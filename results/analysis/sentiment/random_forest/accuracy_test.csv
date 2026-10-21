@@ -1,0 +1,2 @@
+test,chi_square,p_value,alpha,significant,positive_minus_negative_accuracy
+Pearson chi-square,0.026568893139911794,0.8705186927596993,0.01,False,0.0040000000000000036
