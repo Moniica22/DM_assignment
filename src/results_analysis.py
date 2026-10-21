@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from statsmodels.stats.contingency_tables import mcnemar
 
 from constants import *
 
@@ -96,6 +97,80 @@ def run_sentiment(models, output_dir):
     print(test_results.to_string(index=False))
 
 
+def run_comparison(models, output_dir):
+    if len(models) != 2:
+        raise ValueError("McNemar's test requires exactly two models.")
+
+    model_a, model_b = models
+
+    df = load_test()
+    y_true = df[Y_COL].to_numpy()
+
+    y_pred_a = load_model(model_a).predict(df[X_COL].fillna(""))
+    y_pred_b = load_model(model_b).predict(df[X_COL].fillna(""))
+
+    a_correct = y_pred_a == y_true
+    b_correct = y_pred_b == y_true
+
+    contingency_table = np.array([
+        [
+            np.sum(a_correct & b_correct),
+            np.sum(a_correct & ~b_correct),
+        ],
+        [
+            np.sum(~a_correct & b_correct),
+            np.sum(~a_correct & ~b_correct),
+        ],
+    ])
+
+    result = mcnemar(
+        contingency_table,
+        exact=True,
+    )
+
+    alpha = 0.05 #Arbitrary
+
+    contingency_df = pd.DataFrame(
+        contingency_table,
+        index=[
+            f"{model_a}_correct",
+            f"{model_a}_incorrect",
+        ],
+        columns=[
+            f"{model_b}_correct",
+            f"{model_b}_incorrect",
+        ],
+    )
+
+    test_results = pd.DataFrame([{
+        "test": "McNemar exact test",
+        "model_a": model_a,
+        "model_b": model_b,
+        "n_reviews": len(y_true),
+        "model_a_accuracy": float(np.mean(a_correct)),
+        "model_b_accuracy": float(np.mean(b_correct)),
+        "both_correct": int(contingency_table[0, 0]),
+        "model_a_correct_model_b_incorrect": int(contingency_table[0, 1]),
+        "model_a_incorrect_model_b_correct": int(contingency_table[1, 0]),
+        "both_incorrect": int(contingency_table[1, 1]),
+        "statistic": float(result.statistic),
+        "p_value": float(result.pvalue),
+        "alpha": alpha,
+        "significant": bool(result.pvalue < alpha),
+    }])
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    contingency_df.to_csv(output_dir / "mcnemar_contingency_table.csv")
+    test_results.to_csv(output_dir / "mcnemar_test.csv", index=False)
+
+    print("\nMcNemar contingency table:")
+    print(contingency_df.to_string())
+
+    print("\nMcNemar test:")
+    print(test_results.to_string(index=False))
+
+
 
 
 def main():
@@ -110,7 +185,10 @@ def main():
     output_dir = RESULTS_DIR / "analysis" / args.mode / "_vs_".join(args.models)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    functions = {"sentiment": run_sentiment} # add the other 2 funs 
+    functions = {
+        "comparison": run_comparison,
+        "sentiment": run_sentiment,
+        } # add the other 2 funs 
     functions[args.mode](args.models, output_dir)
 
     print(f"\nSaved to {output_dir}")
