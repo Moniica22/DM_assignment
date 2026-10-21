@@ -16,11 +16,11 @@ model_path = RANDOM_FOREST_DIR
 def save_training_results(pipeline: Pipeline, best_params:dict, results: pd.DataFrame, param_grid: dict,model_dir: Path, model_name: str) -> Path:
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    model_path = model_dir / f"{model_name}_2.joblib"
+    model_path = model_dir / f"{model_name}.joblib"
     joblib.dump(pipeline, model_path)
 
     forest = pipeline.named_steps["classifier"] 
-    with open(model_dir / f"{model_name}_best_params_2.json", "w") as file:
+    with open(model_dir / f"{model_name}_best_params.json", "w") as file:
         json.dump(
             {
                 "selection_method": "out-of-bag",
@@ -40,7 +40,7 @@ def save_training_results(pipeline: Pipeline, best_params:dict, results: pd.Data
         )
 
     results.to_csv(
-        model_dir / f"{model_name}_oob_results_2.csv",
+        model_dir / f"{model_name}_oob_results.csv",
         index=False
     )
 
