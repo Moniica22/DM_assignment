@@ -1,0 +1,20 @@
+{
+  "best_params": {
+    "bow__min_df": 1,
+    "classifier__C": 1.0
+  },
+  "best_cv_score": 0.906,
+  "param_grid": {
+    "bow__min_df": [
+      1,
+      2,
+      5
+    ],
+    "classifier__C": [
+      0.01,
+      0.1,
+      1.0,
+      10.0
+    ]
+  }
+}
