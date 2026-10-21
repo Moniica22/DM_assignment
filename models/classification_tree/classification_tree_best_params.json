@@ -1,0 +1,26 @@
+{
+  "best_params": {
+    "bow__min_df": 2,
+    "classifier__ccp_alpha": 0.001,
+    "classifier__max_depth": 20
+  },
+  "best_cv_score": 0.7859999999999999,
+  "param_grid": {
+    "bow__min_df": [
+      1,
+      2,
+      5
+    ],
+    "classifier__max_depth": [
+      5,
+      10,
+      20,
+      null
+    ],
+    "classifier__ccp_alpha": [
+      0.0,
+      0.001,
+      0.005
+    ]
+  }
+}
