@@ -1,0 +1,25 @@
+{
+  "best_params": {
+    "bow__min_df": 5,
+    "classifier__learning_rate": 0.3,
+    "classifier__max_depth": 1,
+    "classifier__n_estimators": 500
+  },
+  "best_cv_score": 0.9239999999999998,
+  "param_grid": {
+    "bow__min_df": [
+      5
+    ],
+    "classifier__n_estimators": [
+      500,
+      800,
+      1200
+    ],
+    "classifier__learning_rate": [
+      0.3
+    ],
+    "classifier__max_depth": [
+      1
+    ]
+  }
+}
