@@ -98,10 +98,10 @@ def main():
 
     # 4 - Create Search Object
     param_grid = { # 81 candidates
-        "bow__min_df": [5],
-        "classifier__n_estimators": [500, 800, 1200],
-        "classifier__learning_rate": [0.3],
-        "classifier__max_depth": [1] # lower than in random forest because it accumulates corrections
+        "bow__min_df": [1, 2, 5],
+        "classifier__n_estimators": [100, 300, 500],
+        "classifier__learning_rate": [0.05, 0.1, 0.3],
+        "classifier__max_depth": [1, 3, 5] # lower than in random forest because it accumulates corrections
     }
     search = create_param_search_grid(pipeline, cv, param_grid)
 

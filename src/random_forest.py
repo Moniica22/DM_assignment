@@ -109,10 +109,9 @@ def main():
     # 2 - Create hyperparameter search grid
     param_grid = { # 36 candidate forests
         "bow__min_df": [1, 2, 5],
-        "bow__ngram_range": [(1, 1), (1, 2)],
-        "classifier__max_depth": [30, None],
-        "classifier__min_samples_leaf": [1],
-        "classifier__max_features": ["sqrt"],
+        "classifier__max_depth": [10, 30, None],
+        "classifier__min_samples_leaf": [1, 3],
+        "classifier__max_features": ["sqrt", 0.1],
     }
     # 3 - Create and run each candidate; select based on OOB score
     best_pipeline, best_params, results = run_oob_search_and_train_model(X_train, Y_train, param_grid)
