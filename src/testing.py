@@ -56,8 +56,8 @@ def test_model(model_type: str, model_name: str) -> None:
 
 
 def main():
-    model_type = ModelNames.NAIVE_BAYES.value
-    model_name = "naive_bayes_2"
+    model_type = ModelNames.LOGISTIC_REGRESSION_L1
+    model_name = "logistic_regression_l1"
 
     test_model(
         model_type=model_type,
