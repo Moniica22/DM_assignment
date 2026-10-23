@@ -1,0 +1,2 @@
+test,model_a,model_b,n_reviews,model_a_accuracy,model_b_accuracy,both_correct,model_a_correct_model_b_incorrect,model_a_incorrect_model_b_correct,both_incorrect,statistic,p_value,alpha,significant
+McNemar exact test,naive_bayes,classification_tree,500,0.924,0.76,354,108,26,12,26.0,4.479313635598752e-13,0.01,True

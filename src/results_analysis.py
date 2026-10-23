@@ -244,7 +244,7 @@ def run_comparison(models, output_dir):
         exact=True,
     )
 
-    alpha = 0.05
+    alpha = 0.01 #As requested
 
     contingency_df = pd.DataFrame(
         contingency_table,
