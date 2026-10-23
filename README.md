@@ -111,9 +111,4 @@ Install the required packages with `pip install -r requirements.txt`:
 - `seaborn` – statistical visualisation support.
 - `scikit-learn` – preprocessing, vectorisation, model training, hyperparameter search, and evaluation metrics.
 - `statsmodels` – McNemar's exact test used in model comparison.
-
-The analysis script also imports `scipy.stats.chi2_contingency`; install SciPy if it is not already installed as a dependency of the environment:
-
-```bash
-pip install scipy
-```
+- `scipy` – for the Chi-square test `chi2_contingency`.
