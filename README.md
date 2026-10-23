@@ -12,7 +12,7 @@ This repository contains the code for a data mining assignment on classifying re
 
 ## Setup
 
-Python 3.9 or newer is recommended. From the repository root, create and activate a virtual environment, then install the dependencies:
+Python 3.9 or newer is recommended. From the repository root, create and activate a virtual environment, and then install the dependencies:
 
 ```bash
 python -m venv .venv
@@ -68,7 +68,7 @@ The default `main()` configuration evaluates the L1-regularized logistic-regress
 python src/testing.py
 ```
 
-To evaluate a different model, update the `model_type` and `model_name` values in `src/testing.py` before running it. The available model names are:
+To evaluate a different model, update the `model_type` and `model_name` values in `src/testing.py` before running it. The different model names are:
 
 - `naive_bayes`
 - `logistic_regression_l1`
@@ -78,7 +78,7 @@ To evaluate a different model, update the `model_type` and `model_name` values i
 
 ### 4. Generate report analyses
 
-`src/results_analysis.py` generates the comparative analyses used in the report. It requires trained model files in `models/` and accepts the following command-line modes:
+`src/results_analysis.py` generates the comparative analyses used in the report. It requires trained model files in `models/` and accepts the following command-line modes depending on the operation:
 
 #### Compare two models with McNemar's exact test
 
@@ -100,18 +100,6 @@ python src/results_analysis.py --mode feature_importance --models naive_bayes lo
 
 The analysis files are saved under `results/analysis/`.
 
-## Scripts that produce the key report results
-
-- **Data preparation and train/test split:** `src/preprocessing.py` produces the cleaned English-review data and the stratified training and test datasets.
-- **Naive Bayes model and cross-validation results:** `src/naive_bayes.py`.
-- **L1 logistic-regression model and cross-validation results:** `src/logistic_regression_l1.py`.
-- **Classification-tree model and cross-validation results:** `src/classification_tree.py`.
-- **Random-forest model and out-of-bag results:** `src/random_forest.py`.
-- **Gradient-boosting model and cross-validation results:** `src/gradient_boosting.py`.
-- **Test-set predictions, classification reports, and confusion matrices:** `src/testing.py`.
-- **Model comparison, sentiment-specific performance, statistical tests, and feature-importance tables:** `src/results_analysis.py`.
-
-The model-training scripts save their main outputs in `models/<model_name>/`. Evaluation outputs are saved in `results/<model_name>/`, while the comparative analyses are saved in `results/analysis/`.
 
 ## External libraries
 
