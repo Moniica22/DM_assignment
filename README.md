@@ -1,6 +1,6 @@
 # DM_assignment
 
-This repository contains the code for a data mining assignment on classifying review text by its `source` label. The project preprocesses the review data, trains and evaluates several machine-learning classifiers, and generates analysis results for the report.
+This repository contains the code for classifying review text by its `source` label. The project preprocesses the review data, trains and evaluates several ML classifiers, and generates analysis results for the report.
 
 ## Project structure
 
