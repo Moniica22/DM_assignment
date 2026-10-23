@@ -1,0 +1,2 @@
+test,model_a,model_b,n_reviews,model_a_accuracy,model_b_accuracy,both_correct,model_a_correct_model_b_incorrect,model_a_incorrect_model_b_correct,both_incorrect,statistic,p_value,alpha,significant
+McNemar exact test,random_forest,gradient_boosting,500,0.918,0.94,452,7,18,23,7.0,0.043285250663757324,0.01,False

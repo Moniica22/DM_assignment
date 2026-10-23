@@ -1,0 +1,3 @@
+,classification_tree_correct,classification_tree_incorrect
+naive_bayes_correct,354,108
+naive_bayes_incorrect,26,12

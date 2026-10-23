@@ -1,0 +1,2 @@
+test,model_a,model_b,n_reviews,model_a_accuracy,model_b_accuracy,both_correct,model_a_correct_model_b_incorrect,model_a_incorrect_model_b_correct,both_incorrect,statistic,p_value,alpha,significant
+McNemar exact test,naive_bayes,logistic_regression,500,0.924,0.906,431,31,22,16,22.0,0.27167916606550335,0.01,False
